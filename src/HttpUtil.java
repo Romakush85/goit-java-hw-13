@@ -2,9 +2,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -74,7 +72,26 @@ public class HttpUtil {
         System.out.println(response.getStatusLine());
         User userByUsername = users.get(0);
         return userByUsername;
-
     }
 
+
+    public static void sendUpdateUser(User user) throws IOException {
+        String url = String.format("https://jsonplaceholder.typicode.com/users/%d", user.getId());
+        HttpPut putRequest = new HttpPut(url);
+        StringEntity json = new StringEntity(MAPPER.writeValueAsString(user), ContentType.APPLICATION_JSON);
+        putRequest.setEntity(json);
+        CloseableHttpResponse response = HTTPCLIENT.execute(putRequest);
+        HttpEntity entity = response.getEntity();
+        String entityAsString = EntityUtils.toString(entity);
+        User updatedUser = MAPPER.readValue(entityAsString, User.class);
+        System.out.println(response.getStatusLine());
+        System.out.println(updatedUser.toString());
+    }
+
+    public static void sendDeleteUser(int id) throws IOException {
+        String URL = String.format("https://jsonplaceholder.typicode.com/users/%d", id);
+        HttpDelete deleteRequest = new HttpDelete(URL);
+        CloseableHttpResponse response = HTTPCLIENT.execute(deleteRequest);
+        System.out.println(response.getStatusLine());
+    }
 }
