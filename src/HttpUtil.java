@@ -1,5 +1,7 @@
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
@@ -9,6 +11,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -28,7 +31,7 @@ public class HttpUtil {
             .setDefaultRequestConfig(requestConfig)
             .build();
 
-    public static List<User> sendGetAllUsers(URI uri) throws IOException {
+    public static List<User> getAllUsers(URI uri) throws IOException {
         HttpGet getRequest = new HttpGet(uri);
         CloseableHttpResponse response = HTTPCLIENT.execute(getRequest);
         HttpEntity entity = response.getEntity();
@@ -38,7 +41,7 @@ public class HttpUtil {
         return users;
     }
 
-    public static void sendPostUser(URI uri, User user) throws IOException {
+    public static void postUser(URI uri, User user) throws IOException {
         HttpPost postRequest = new HttpPost(uri);
         StringEntity json = new StringEntity(MAPPER.writeValueAsString(user), ContentType.APPLICATION_JSON);
         postRequest.setEntity(json);
@@ -50,7 +53,7 @@ public class HttpUtil {
         System.out.println(addedUser.toString());
     }
 
-    public static User sendGetUserByID(int id) throws IOException {
+    public static User getUserByID(int id) throws IOException {
         String URL = String.format("https://jsonplaceholder.typicode.com/users/%d", id);
         HttpGet getRequest = new HttpGet(URL);
         CloseableHttpResponse response = HTTPCLIENT.execute(getRequest);
@@ -62,7 +65,7 @@ public class HttpUtil {
 
     }
 
-    public static User sendGetUserByUsername(String username) throws IOException {
+    public static User getUserByUsername(String username) throws IOException {
         String URL = String.format("https://jsonplaceholder.typicode.com/users?username=%s", username);
         HttpGet getRequest = new HttpGet(URL);
         CloseableHttpResponse response = HTTPCLIENT.execute(getRequest);
@@ -75,7 +78,7 @@ public class HttpUtil {
     }
 
 
-    public static void sendUpdateUser(User user) throws IOException {
+    public static void updateUser(User user) throws IOException {
         String url = String.format("https://jsonplaceholder.typicode.com/users/%d", user.getId());
         HttpPut putRequest = new HttpPut(url);
         StringEntity json = new StringEntity(MAPPER.writeValueAsString(user), ContentType.APPLICATION_JSON);
@@ -88,10 +91,48 @@ public class HttpUtil {
         System.out.println(updatedUser.toString());
     }
 
-    public static void sendDeleteUser(int id) throws IOException {
+    public static void deleteUser(int id) throws IOException {
         String URL = String.format("https://jsonplaceholder.typicode.com/users/%d", id);
         HttpDelete deleteRequest = new HttpDelete(URL);
         CloseableHttpResponse response = HTTPCLIENT.execute(deleteRequest);
         System.out.println(response.getStatusLine());
+    }
+
+    //  TASK 2
+
+    public static void getLastPostComments(int id) throws IOException {
+        String postsURL = String.format("https://jsonplaceholder.typicode.com/users/%d/posts", id);
+        HttpGet getRequest = new HttpGet(postsURL);
+        CloseableHttpResponse response = HTTPCLIENT.execute(getRequest);
+        HttpEntity entity = response.getEntity();
+        String entityAsString = EntityUtils.toString(entity);
+        List<Post> posts = MAPPER.readValue(entityAsString, new TypeReference<List<Post>>() {});
+        int lastPostId = posts
+                .stream()
+                .map(post -> post.getId())
+                .max(Integer::compare)
+                .get();
+        String commentsURL = String.format("https://jsonplaceholder.typicode.com/posts/%d/comments", lastPostId);
+        HttpGet getCommRequest = new HttpGet(commentsURL);
+        CloseableHttpResponse ComResponse = HTTPCLIENT.execute(getCommRequest);
+        HttpEntity CommEntity = ComResponse.getEntity();
+        String commEntityAsString = EntityUtils.toString(CommEntity);
+        List<Comment> comments = MAPPER.readValue(commEntityAsString, new TypeReference<List<Comment>>() {});
+        String jsonName = String.format("./resources/user-%d-post-%d-comments.json", id, lastPostId);
+        ObjectWriter writer = MAPPER.writer(new DefaultPrettyPrinter());
+        writer.writeValue(new File(jsonName), comments);
+    }
+
+        // TASK 3
+
+    public static List<Todo> getTasks(int id) throws IOException {
+        String URL = String.format("https://jsonplaceholder.typicode.com/users/%d/todos", id);
+        HttpGet getRequest = new HttpGet(URL);
+        CloseableHttpResponse response = HTTPCLIENT.execute(getRequest);
+        HttpEntity entity = response.getEntity();
+        String entityAsString = EntityUtils.toString(entity);
+        List<Todo> todos = MAPPER.readValue(entityAsString, new TypeReference<List<Todo>>() {});
+        List<Todo> uncompletedTasks = todos.stream().filter(todo -> !todo.isCompleted()).toList();
+        return uncompletedTasks;
     }
 }

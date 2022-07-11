@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.URI;
 
 public class Main {
     private final static String USERS_URL =  "https://jsonplaceholder.typicode.com/users";
@@ -10,23 +9,31 @@ public class Main {
         defaultUser.setCompany(defaultCompany);
         defaultUser.setAddress(defaultAddress);
 
+        // TASK 1
+//        HttpUtil.postUser(URI.create(USERS_URL), defaultUser);
+//        User userByID = HttpUtil.getUserByID(1);
+//        userByID.setUsername("SuperBrat");
+//        System.out.println(userByID.toString());
+//        HttpUtil.updateUser(userByID);
 
-        HttpUtil.sendPostUser(URI.create(USERS_URL), defaultUser);
-        User userByID = HttpUtil.sendGetUserByID(1);
-        userByID.setUsername("SuperBrat");
-        System.out.println(userByID.toString());
-        HttpUtil.sendUpdateUser(userByID);
-
-//        List<User> users = HttpUtil.sendGetAllUsers(URI.create(USERS_URL));
+//        List<User> users = HttpUtil.getAllUsers(URI.create(USERS_URL));
 //        System.out.println(users.toString());
 
 //
-//        User userByUsername = HttpUtil.sendGetUserByUsername("Bret");
+//        User userByUsername = HttpUtil.getUserByUsername("Bret");
 //        System.out.println(userByUsername.toString());
 //
-//        HttpUtil.sendDeleteUser(1);
-//        User userByID1 = HttpUtil.sendGetUserByID(1);
+//        HttpUtil.deleteUser(1);
+//        User userByID1 = HttpUtil.getUserByID(1);
 //        System.out.println(userByID1.toString());
+
+        // TASK 2
+        HttpUtil.getLastPostComments(2);
+
+        // TASK 3
+//        List<Todo> todos = HttpUtil.getTasks(1);
+//        System.out.println(Arrays.toString(todos.toArray()));
+
     }
 
 
