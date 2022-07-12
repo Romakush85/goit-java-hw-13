@@ -118,7 +118,7 @@ public class HttpUtil {
         HttpEntity CommEntity = ComResponse.getEntity();
         String commEntityAsString = EntityUtils.toString(CommEntity);
         List<Comment> comments = MAPPER.readValue(commEntityAsString, new TypeReference<List<Comment>>() {});
-        String jsonName = String.format("./resources/user-%d-post-%d-comments.json", id, lastPostId);
+        String jsonName = String.format("./src/resources/user-%d-post-%d-comments.json", id, lastPostId);
         ObjectWriter writer = MAPPER.writer(new DefaultPrettyPrinter());
         writer.writeValue(new File(jsonName), comments);
     }
